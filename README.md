@@ -49,3 +49,4 @@ Push `Dockerfile.api` / `Dockerfile.worker` images to ECR, run both on ECS Farga
 (API behind an ALB, workers scaled on SQS queue depth), S3 bucket for uploads,
 SQS + DLQ, RDS Postgres. Set `AUTO_CREATE_INFRA=false`, drop `AWS_ENDPOINT_URL` and
 the dummy keys, and give the task roles s3/sqs permissions.
+
