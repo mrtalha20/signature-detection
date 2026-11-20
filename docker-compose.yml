@@ -1,0 +1,43 @@
+services:
+  localstack:            # fake AWS: S3 + SQS on one port
+    image: localstack/localstack:3
+    environment:
+      SERVICES: s3,sqs
+    ports: ["4566:4566"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      retries: 20
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sig
+      POSTGRES_PASSWORD: sig
+      POSTGRES_DB: signatures
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sig -d signatures"]
+      interval: 5s
+      retries: 20
+
+  api:
+    build: { context: ., dockerfile: Dockerfile.api }
+    env_file: .env
+    ports: ["8000:8000"]
+    depends_on:
+      localstack: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+
+  worker:
+    build: { context: ., dockerfile: Dockerfile.worker }
+    env_file: .env
+    volumes: ["./models:/models:ro"]   # put best.onnx / embedder.onnx here
+    depends_on:
+      localstack: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    deploy:
+      replicas: 1        # try: docker compose up --scale worker=3
+
+volumes:
+  pgdata:

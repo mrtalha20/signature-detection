@@ -1,0 +1,26 @@
+# Environment configuration
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Downloaded model files and Hugging Face cache
+models/*.onnx
+models/.cache/
+
+# Local data and logs
+*.log
+data/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
